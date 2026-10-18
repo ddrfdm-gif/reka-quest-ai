@@ -1,0 +1,21 @@
+REKA QUEST AI - DEPLOY READY
+
+GITHUB
+1. Create a new repository, e.g. reka-quest-ai.
+2. Upload the CONTENTS of this folder to the repository root.
+3. DO NOT upload .env or node_modules.
+4. Commit changes.
+
+RENDER
+1. Create a new Web Service from the GitHub repository.
+2. Build Command: npm install
+3. Start Command: npm start
+4. Add Environment Variables:
+   GEMINI_API_KEY = your real key
+   GEMINI_MODEL = gemini-3.8-flash
+5. Deploy.
+6. Open the public URL given by Render.
+
+IMPORTANT
+- Never publish your .env file.
+- If your API key was ever posted publicly, revoke it and create a new one.
