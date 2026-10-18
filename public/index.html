@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="ms">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>REKA QUEST AI — Fikir • Reka • Uji • Baiki</title>
+  <style>
+    :root{
+      --bg:#07111f; --panel:#0e1d31; --panel2:#132744; --text:#eef7ff;
+      --muted:#a8bdd4; --accent:#6fe6ff; --accent2:#ffd85e; --ok:#63e6a7;
+      --danger:#ff7f8a; --line:#254362;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,Segoe UI,Arial,sans-serif;background:
+      radial-gradient(circle at 20% 10%,#173a6b 0,transparent 30%),
+      radial-gradient(circle at 90% 0%,#40255e 0,transparent 25%),var(--bg);color:var(--text)}
+    button,input,textarea,select{font:inherit}
+    button{cursor:pointer;border:0;border-radius:14px;padding:.75rem 1rem;font-weight:800}
+    .app{max-width:1180px;margin:auto;padding:24px}
+    .topbar{display:flex;gap:14px;align-items:center;justify-content:space-between;margin-bottom:18px}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{width:48px;height:48px;border-radius:16px;background:linear-gradient(135deg,var(--accent),#6b7cff);display:grid;place-items:center;font-size:26px}
+    h1{font-size:1.25rem;margin:0}.tag{color:var(--muted);font-size:.9rem}
+    .chips{display:flex;gap:8px;flex-wrap:wrap}.chip{background:#10253f;border:1px solid var(--line);padding:.5rem .75rem;border-radius:999px}
+    .grid{display:grid;grid-template-columns:260px 1fr;gap:18px}
+    .sidebar,.card{background:linear-gradient(180deg,rgba(18,39,68,.95),rgba(9,26,45,.96));border:1px solid var(--line);border-radius:22px;box-shadow:0 14px 35px rgba(0,0,0,.22)}
+    .sidebar{padding:16px;height:max-content;position:sticky;top:18px}
+    .navbtn{width:100%;text-align:left;background:transparent;color:var(--text);margin:4px 0;border:1px solid transparent}
+    .navbtn.active,.navbtn:hover{background:#173a5f;border-color:#2d5d85}
+    .navbtn.locked{opacity:.45}
+    .card{padding:22px}.hero{padding:28px}
+    .hero h2{font-size:2rem;margin:.25rem 0 .6rem}.hero p{color:var(--muted);line-height:1.6}
+    .cta{background:linear-gradient(135deg,var(--accent2),#ff9e5e);color:#18222d}
+    .secondary{background:#173a5f;color:var(--text);border:1px solid #2e5f89}
+    .danger{background:#50263a;color:#ffdce3}.success{background:#194b3b;color:#d7fff1}
+    .mission-title{display:flex;justify-content:space-between;gap:12px;align-items:center}
+    .badge{font-size:.78rem;padding:.35rem .6rem;border-radius:999px;background:#173a5f;color:#bfe8ff}
+    label{display:block;margin:.8rem 0 .35rem;color:#cfe6f5;font-weight:700}
+    input,textarea,select{width:100%;background:#091a2c;border:1px solid #2a4c6b;color:var(--text);border-radius:12px;padding:.8rem}
+    textarea{min-height:90px;resize:vertical}
+    .row{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .mini{padding:14px;border:1px solid var(--line);border-radius:16px;background:#0b2037}
+    .mini h4{margin:.2rem 0}.muted{color:var(--muted)}
+    .footer-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px;flex-wrap:wrap}
+    .store{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    .item{border:1px solid var(--line);border-radius:16px;padding:12px;background:#0a2036}
+    .item button{width:100%;margin-top:8px;background:#183c60;color:white}
+    .meter{height:10px;background:#0a1726;border-radius:999px;overflow:hidden;border:1px solid #24455f}.meter>div{height:100%;background:linear-gradient(90deg,#63e6a7,#6fe6ff)}
+    .mentor{border:1px solid #315778;background:#0b233d;padding:14px;border-radius:16px;margin-top:14px}
+    .mentor strong{color:var(--accent)}
+    .passport{display:grid;gap:10px}.passport .entry{padding:12px 14px;border-left:4px solid #3d83b8;background:#0c2036;border-radius:10px}
+    .hidden{display:none!important}
+    table{width:100%;border-collapse:collapse}th,td{padding:.75rem;border-bottom:1px solid var(--line);text-align:left}
+    th{color:#b7d9ef}
+    .canvas{border:1px dashed #4f7898;border-radius:16px;padding:14px;background:#081a2b}
+    .sketch{width:100%;height:240px;background:white;border-radius:12px;touch-action:none}
+    @media(max-width:850px){.grid{grid-template-columns:1fr}.sidebar{position:static}.row,.row3,.store{grid-template-columns:1fr}}
+  
+    .ai-chat{margin-top:14px;border:1px solid #315778;background:#0b233d;padding:14px;border-radius:16px}
+    .ai-log{display:flex;flex-direction:column;gap:10px;max-height:280px;overflow:auto;margin:10px 0}
+    .msg{padding:12px 14px;border-radius:14px;line-height:1.55;white-space:normal;overflow-wrap:anywhere}
+    .msg.user{background:#173a5f;align-self:flex-end;max-width:82%;width:fit-content}
+    .msg.ai{background:#0d2a45;border:1px solid #315778;align-self:flex-start;max-width:90%;min-width:min(320px,90%);width:fit-content}
+    .ai-row{display:flex;gap:8px}.ai-row input{flex:1}.ai-status{font-size:.82rem;color:#9ec4dd;margin-top:6px}
+    .quick-prompts{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.quick-prompts button{padding:.45rem .7rem;background:#173a5f;color:white;border:1px solid #2e5f89}
+
+    .msg.ai strong{color:#8be9ff}
+    .msg.ai ul{margin:.45rem 0 .2rem 1.1rem;padding:0}
+    .msg.ai li{margin:.25rem 0}
+    .msg.ai p{margin:.35rem 0}
+    .msg.ai .ai-section{margin:.55rem 0;padding:.6rem .7rem;background:#0b1f34;border-radius:10px}
+    .msg.ai .ai-label{font-weight:800;color:#8be9ff;margin-bottom:.2rem}
+    .ai-thinking{opacity:.75;font-style:italic}
+
+
+    .mentor-card{display:grid;gap:10px}
+    .mentor-block{padding:10px 12px;border-radius:12px;background:#0a1d31;border:1px solid #294d6d}
+    .mentor-block .label{font-weight:900;margin-bottom:4px;color:#8be9ff}
+    .mentor-block.question{border-style:dashed}
+    .mentor-block .text{line-height:1.5}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">🚀</div>
+      <div><h1>REKA QUEST AI</h1><div class="tag">Fikir • Reka • Uji • Baiki</div></div>
+    </div>
+    <div class="chips">
+      <div class="chip">🪙 <span id="coins">100</span> RC</div>
+      <div class="chip">⭐ <span id="score">0</span>/100</div>
+      <div class="chip">📍 Misi <span id="missionNo">1</span>/6</div>
+      <div class="chip">👤 <span id="studentChip">Belum daftar</span></div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <aside class="sidebar">
+      <button class="navbtn active" data-view="home">🏠 Pusat Misi</button>
+      <button class="navbtn" data-view="m1">1️⃣ Problem Scanner</button>
+      <button class="navbtn locked" data-view="m2">2️⃣ Idea Forge</button>
+      <button class="navbtn locked" data-view="m3">3️⃣ Sketch Lab</button>
+      <button class="navbtn locked" data-view="m4">4️⃣ REKA Shop</button>
+      <button class="navbtn locked" data-view="m5">5️⃣ Build & Test</button>
+      <button class="navbtn locked" data-view="m6">6️⃣ Pitch Arena</button>
+      <hr style="border-color:#24445e;border-style:solid;border-width:1px 0 0">
+      <button class="navbtn" data-view="passport">🧭 Design Passport</button>
+      <button class="navbtn" data-view="teacher">📊 Teacher Dashboard</button>
+      <button class="navbtn" id="changeStudentBtn">👥 Tukar Pelajar</button>
+    </aside>
+
+    <main>
+
+      <section id="register" class="view card hero">
+        <span class="badge">PROFIL MURID</span>
+        <h2>Daftar Pereka Muda</h2>
+        <p>Sebelum memulakan REKA QUEST, masukkan maklumat kamu. Nama ini akan digunakan dalam Design Passport dan Teacher Dashboard.</p>
+        <div class="row">
+          <div>
+            <label>Nama murid</label>
+            <input id="studentName" placeholder="Contoh: Nur Aisyah">
+          </div>
+          <div>
+            <label>Kelas / kumpulan</label>
+            <input id="studentClass" placeholder="Contoh: 6 Bestari">
+          </div>
+        </div>
+        <div class="footer-actions">
+          <button class="cta" onclick="registerStudent()">Masuk REKA QUEST →</button>
+        </div>
+      </section>
+
+      <section id="home" class="view card hero hidden">
+        <span class="badge">CABARAN UTAMA</span>
+        <h2>Selamatkan Koloni Arunika</h2>
+        <p>Koloni angkasa Arunika memerlukan sebuah <b>kapsul bekalan</b> yang stabil, menjimatkan bahan dan tidak melebihi bajet. Kamu mempunyai <b>100 REKA Coins</b>. Setiap keputusan akan memberi kesan kepada reka bentuk akhir.</p>
+        <div class="row3">
+          <div class="mini"><h4>🎯 Kriteria</h4><div class="muted">Stabil, berfungsi, kreatif</div></div>
+          <div class="mini"><h4>💰 Kekangan</h4><div class="muted">Bajet maksimum 100 RC</div></div>
+          <div class="mini"><h4>🔁 Prinsip</h4><div class="muted">Uji, gagal, baiki, uji semula</div></div>
+        </div>
+        <div class="footer-actions"><button class="cta" onclick="go('m1')">Mulakan Misi →</button></div>
+      </section>
+
+      <section id="m1" class="view card hidden">
+        <div class="mission-title"><h2>1️⃣ Problem Scanner</h2><span class="badge">Empati + Takrif Masalah</span></div>
+        <p class="muted">Kenal pasti dahulu siapa pengguna, apa masalah sebenar dan apakah batasannya.</p>
+        <label>Siapakah pengguna produk kamu?</label><input id="userNeed" placeholder="Contoh: juruteknik koloni angkasa">
+        <label>Apakah masalah yang perlu diselesaikan?</label><textarea id="problem" placeholder="Nyatakan masalah dengan jelas..."></textarea>
+        <div class="row">
+          <div><label>Kriteria kejayaan utama</label><input id="criteria" placeholder="Contoh: tidak mudah tumbang"></div>
+          <div><label>Kekangan reka bentuk</label><input id="constraint" placeholder="Contoh: bajet ≤ 100 RC"></div>
+        </div>
+        <div class="ai-chat">
+          <strong>🤖 REKA AI Mentor</strong>
+          <div class="muted">Mentor membaca jawapan kamu dan membimbing dengan soalan, bukan memberi jawapan siap.</div>
+          <div id="aiLog1" class="ai-log"><div class="msg ai">Ceritakan masalah reka bentuk kamu. Saya akan bantu kamu fikir lebih mendalam.</div></div>
+          <div class="quick-prompts">
+            <button onclick="askMentor(1,'Semak pernyataan masalah saya')">Semak masalah</button>
+            <button onclick="askMentor(1,'Bantu saya fikirkan kriteria kejayaan')">Bantu kriteria</button>
+            <button onclick="askMentor(1,'Tanya saya satu soalan yang mencabar pemikiran')">Soalan mencabar</button>
+          </div>
+          <div class="ai-row" style="margin-top:8px"><input id="aiInput1" placeholder="Tanya REKA AI Mentor..."><button class="secondary" onclick="askMentor(1)">Hantar</button></div>
+          <div id="aiStatus1" class="ai-status"></div>
+        </div>
+        <div class="footer-actions"><button class="cta" onclick="complete1()">Simpan & Teruskan</button></div>
+      </section>
+
+      <section id="m2" class="view card hidden">
+        <div class="mission-title"><h2>2️⃣ Idea Forge</h2><span class="badge">Divergent Thinking</span></div>
+        <p class="muted">Hasilkan tiga idea yang berbeza. Jangan pilih “jawapan betul”; cipta pilihan kamu sendiri.</p>
+        <div class="row3">
+          <div><label>Idea A</label><textarea id="ideaA" placeholder="Terangkan idea A..."></textarea></div>
+          <div><label>Idea B</label><textarea id="ideaB" placeholder="Terangkan idea B..."></textarea></div>
+          <div><label>Idea C</label><textarea id="ideaC" placeholder="Terangkan idea C..."></textarea></div>
+        </div>
+        <label>Idea manakah paling berpotensi?</label>
+        <select id="chosenIdea"><option>A</option><option>B</option><option>C</option></select>
+        <label>Mengapa?</label><textarea id="ideaReason" placeholder="Berikan justifikasi berdasarkan fungsi, kestabilan, kos atau pengguna."></textarea>
+        <div class="ai-chat">
+          <strong>🤖 REKA AI Mentor</strong>
+          <div id="aiLog2" class="ai-log"><div class="msg ai">Saya akan menilai idea kamu berdasarkan fungsi, kestabilan, kos dan justifikasi.</div></div>
+          <div class="quick-prompts">
+            <button onclick="askMentor(2,'Bandingkan kekuatan dan kelemahan tiga idea saya')">Bandingkan idea</button>
+            <button onclick="askMentor(2,'Adakah justifikasi saya cukup kuat?')">Semak justifikasi</button>
+          </div>
+          <div class="ai-row" style="margin-top:8px"><input id="aiInput2" placeholder="Tanya tentang idea kamu..."><button class="secondary" onclick="askMentor(2)">Hantar</button></div>
+          <div id="aiStatus2" class="ai-status"></div>
+        </div>
+        <div class="footer-actions"><button class="cta" onclick="complete2()">Simpan & Teruskan</button></div>
+      </section>
+
+      <section id="m3" class="view card hidden">
+        <div class="mission-title"><h2>3️⃣ Sketch Lab</h2><span class="badge">Visualisasi Idea</span></div>
+        <p class="muted">Lakar reka bentuk pilihan kamu. Gunakan tetikus atau sentuhan pada ruang putih.</p>
+        <div class="canvas">
+          <canvas id="sketch" class="sketch" width="900" height="320"></canvas>
+          <div class="footer-actions"><button class="secondary" onclick="clearCanvas()">Padam Lakaran</button></div>
+        </div>
+        <label>Nyatakan dua ciri penting pada lakaran</label><textarea id="sketchNotes" placeholder="Contoh: tapak lebar untuk kestabilan; badan ringan untuk mengurangkan kos..."></textarea>
+
+        <div class="ai-chat">
+          <strong>🤖 REKA AI Mentor</strong>
+          <div class="muted">Saya akan membaca ciri yang kamu nyatakan dan melihat lakaran kamu untuk membantu kamu menilai reka bentuk.</div>
+          <div id="aiLog3" class="ai-log"><div class="msg ai">Saya boleh bantu kamu semak sama ada ciri pada lakaran benar-benar menyokong fungsi dan kestabilan produk.</div></div>
+          <div class="quick-prompts">
+            <button onclick="askMentor(3,'Semak lakaran dan dua ciri yang saya nyatakan')">Semak lakaran</button>
+            <button onclick="askMentor(3,'Adakah ciri pada lakaran saya menyokong kestabilan dan fungsi?')">Semak fungsi</button>
+            <button onclick="askMentor(3,'Tanya saya satu soalan untuk menambah baik lakaran ini')">Soalan penambahbaikan</button>
+          </div>
+          <div class="ai-row" style="margin-top:8px">
+            <input id="aiInput3" placeholder="Tanya tentang lakaran kamu...">
+            <button class="secondary" onclick="askMentor(3)">Hantar</button>
+          </div>
+          <div id="aiStatus3" class="ai-status"></div>
+        </div>
+
+        <div class="footer-actions"><button class="cta" onclick="complete3()">Simpan & Teruskan</button></div>
+      </section>
+
+      <section id="m4" class="view card hidden">
+        <div class="mission-title"><h2>4️⃣ REKA Shop</h2><span class="badge">Decision Making + Cost Optimisation</span></div>
+        <p class="muted">Beli bahan menggunakan REKA Coins. Bahan yang lebih kukuh mungkin lebih mahal. Jangan habiskan bajet tanpa strategi.</p>
+        <div id="store" class="store"></div>
+        <div class="mini" style="margin-top:14px">
+          <b>Troli:</b> <span id="cartText">Belum ada bahan</span>
+          <div style="margin-top:10px" class="meter"><div id="budgetBar" style="width:0%"></div></div>
+        </div>
+        <label>Terangkan strategi pembelian kamu</label><textarea id="buyReason" placeholder="Mengapa bahan ini dipilih? Apakah trade-off antara kos dan kekuatan?"></textarea>
+        <div class="footer-actions"><button class="cta" onclick="complete4()">Sahkan Pembelian & Teruskan</button></div>
+      </section>
+
+      <section id="m5" class="view card hidden">
+        <div class="mission-title"><h2>5️⃣ Build & Test</h2><span class="badge">Prototype + Iteration</span></div>
+        <p class="muted">Bina prototaip fizikal menggunakan bahan yang dipilih. Kemudian rekod keputusan ujian.</p>
+        <div class="row3">
+          <div><label>Masa stabil (saat)</label><input id="stableSec" type="number" min="0" value="0"></div>
+          <div><label>Beban ditampung (g)</label><input id="loadG" type="number" min="0" value="0"></div>
+          <div><label>Bilangan redesign</label><input id="redesign" type="number" min="0" value="0"></div>
+        </div>
+        <label>Apa yang gagal atau perlu dibaiki?</label><textarea id="failure" placeholder="Contoh: tapak terlalu kecil dan kapsul senget..."></textarea>
+        <label>Apa penambahbaikan yang dibuat?</label><textarea id="improve" placeholder="Contoh: tambah dua sokongan sisi dan rendahkan pusat graviti..."></textarea>
+        <div class="ai-chat">
+          <strong>🤖 REKA AI Mentor</strong>
+          <div id="aiLog5" class="ai-log"><div class="msg ai">Masukkan keputusan ujian. Saya akan bantu kamu menganalisis punca dan merancang penambahbaikan.</div></div>
+          <div class="quick-prompts">
+            <button onclick="askMentor(5,'Analisis keputusan ujian saya')">Analisis ujian</button>
+            <button onclick="askMentor(5,'Bantu saya fikirkan satu penambahbaikan yang patut diuji dahulu')">Cadang fokus ujian</button>
+          </div>
+          <div class="ai-row" style="margin-top:8px"><input id="aiInput5" placeholder="Tanya tentang keputusan ujian..."><button class="secondary" onclick="askMentor(5)">Hantar</button></div>
+          <div id="aiStatus5" class="ai-status"></div>
+        </div>
+        <div class="footer-actions"><button class="cta" onclick="complete5()">Simpan & Teruskan</button></div>
+      </section>
+
+      <section id="m6" class="view card hidden">
+        <div class="mission-title"><h2>6️⃣ Pitch Arena</h2><span class="badge">Communicate + Reflect</span></div>
+        <label>Nama produk</label><input id="productName" placeholder="Contoh: Arunika Cargo Pod X1">
+        <label>Pitch 60 saat</label><textarea id="pitch" placeholder="Jelaskan masalah, idea, bahan, keputusan ujian dan sebab reka bentuk kamu terbaik."></textarea>
+        <label>Refleksi akhir</label><textarea id="reflection" placeholder="Apakah perkara paling penting yang kamu pelajari sepanjang proses reka bentuk?"></textarea>
+        <div class="footer-actions"><button class="cta" onclick="complete6()">Tamatkan REKA QUEST 🏆</button></div>
+      </section>
+
+      <section id="passport" class="view card hidden">
+        <div class="mission-title"><h2>🧭 My REKA Design Passport</h2><span class="badge">Evidence of Learning</span></div>
+        <div id="passportEntries" class="passport"></div>
+        <div class="footer-actions"><button class="secondary" onclick="downloadPassport()">Eksport Passport (.txt)</button></div>
+      </section>
+
+      <section id="teacher" class="view card hidden">
+        <div class="mission-title"><h2>📊 Teacher Dashboard</h2><span class="badge">Learning Analytics</span></div>
+        <table>
+          <thead><tr><th>Murid</th><th>Misi</th><th>Baki RC</th><th>Redesign</th><th>Skor</th></tr></thead>
+          <tbody><tr><td id="tdStudent">—</td><td id="tdMission">1/6</td><td id="tdCoins">100</td><td id="tdRedesign">0</td><td id="tdScore">0</td></tr></tbody>
+        </table>
+        <p class="muted" style="margin-top:14px">Versi prototaip menyimpan data secara setempat pada pelayar. Versi seterusnya boleh disambungkan ke Supabase/Firebase untuk kelas sebenar.</p>
+      </section>
+    </main>
+  </div>
+</div>
+
+<script>
+const materials=[
+  {name:"Kadbod tebal",cost:20,icon:"📦"},{name:"Kadbod nipis",cost:10,icon:"🗂️"},
+  {name:"Batang aiskrim",cost:5,icon:"🪵"},{name:"Straw",cost:5,icon:"🥤"},
+  {name:"Gam",cost:15,icon:"🧴"},{name:"Getah",cost:8,icon:"🧵"},
+  {name:"Botol plastik",cost:12,icon:"🧃"},{name:"Pita pelekat",cost:10,icon:"🩹"},
+  {name:"Kertas warna",cost:6,icon:"🎨"}
+];
+let S=JSON.parse(localStorage.getItem("rq_state")||"null")||{mission:1,coins:100,score:0,cart:[],data:{},studentName:"",studentClass:""};
+function save(){localStorage.setItem("rq_state",JSON.stringify(S)); refresh();}
+function refresh(){
+  coins.textContent=S.coins; score.textContent=S.score; missionNo.textContent=S.mission;
+  document.querySelectorAll(".navbtn[data-view^='m']").forEach((b,i)=>{b.classList.toggle("locked",i+1>S.mission)});
+  tdMission.textContent=Math.min(S.mission,6)+"/6"; tdCoins.textContent=S.coins;
+  tdRedesign.textContent=S.data.redesign||0; tdScore.textContent=S.score;
+  const label=[S.studentName,S.studentClass].filter(Boolean).join(" • ") || "Belum daftar";
+  studentChip.textContent=label;
+  if(document.getElementById("tdStudent")) document.getElementById("tdStudent").textContent=label;
+  renderPassport();
+}
+function go(id){
+  if(!S.studentName && id!=="register") return go("register");
+  if(/^m\d/.test(id)){let n=+id.slice(1); if(n>S.mission)return;}
+  document.querySelectorAll(".view").forEach(v=>v.classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
+  document.querySelectorAll(".navbtn").forEach(b=>b.classList.toggle("active",b.dataset.view===id));
+}
+document.querySelectorAll(".navbtn[data-view]").forEach(b=>b.onclick=()=>go(b.dataset.view));
+changeStudentBtn.onclick=()=>{
+  if(confirm("Tukar pelajar? Kemajuan pelajar semasa pada pelayar ini akan dipadam.")){
+    localStorage.removeItem("rq_state");
+    location.reload();
+  }
+};
+
+function registerStudent(){
+  const name=document.getElementById("studentName").value.trim();
+  const cls=document.getElementById("studentClass").value.trim();
+  if(!name) return alert("Sila masukkan nama murid.");
+  S.studentName=name;
+  S.studentClass=cls;
+  save();
+  go("home");
+}
+
+function val(id){return document.getElementById(id).value.trim()}
+function complete1(){
+  if(!val("problem")||!val("criteria")) return alert("Lengkapkan masalah dan kriteria kejayaan.");
+  Object.assign(S.data,{userNeed:val("userNeed"),problem:val("problem"),criteria:val("criteria"),constraint:val("constraint")});
+  S.score=Math.max(S.score,15);S.mission=Math.max(S.mission,2);save();go("m2")
+}
+
+function complete2(){
+  if(!val("ideaA")||!val("ideaB")||!val("ideaC")||!val("ideaReason")) return alert("Hasilkan tiga idea dan berikan justifikasi.");
+  Object.assign(S.data,{ideaA:val("ideaA"),ideaB:val("ideaB"),ideaC:val("ideaC"),chosenIdea:chosenIdea.value,ideaReason:val("ideaReason")});
+  S.score=Math.max(S.score,30);S.mission=Math.max(S.mission,3);save();go("m3")
+}
+function complete3(){
+  if(!val("sketchNotes")) return alert("Nyatakan sekurang-kurangnya ciri penting pada lakaran.");
+  S.data.sketchNotes=val("sketchNotes");S.data.sketchData=c.toDataURL("image/png");S.score=Math.max(S.score,45);S.mission=Math.max(S.mission,4);save();go("m4")
+}
+function renderStore(){
+  store.innerHTML=materials.map((m,i)=>`<div class="item"><div style="font-size:1.5rem">${m.icon}</div><b>${m.name}</b><div class="muted">${m.cost} RC</div><button onclick="buy(${i})">Tambah</button></div>`).join("");
+}
+function buy(i){
+  const m=materials[i]; if(S.coins<m.cost)return alert("REKA Coins tidak mencukupi.");
+  S.coins-=m.cost;S.cart.push(m);save();renderCart()
+}
+function renderCart(){
+  cartText.textContent=S.cart.length?S.cart.map(x=>x.name).join(", "):"Belum ada bahan";
+  budgetBar.style.width=(100-S.coins)+"%";
+}
+function complete4(){
+  if(S.cart.length<2)return alert("Pilih sekurang-kurangnya dua bahan.");
+  if(!val("buyReason"))return alert("Terangkan strategi pembelian kamu.");
+  S.data.buyReason=val("buyReason");S.data.cart=S.cart;
+  S.score=Math.max(S.score,60);S.mission=Math.max(S.mission,5);save();go("m5")
+}
+
+function complete5(){
+  Object.assign(S.data,{stableSec:+stableSec.value,loadG:+loadG.value,redesign:+redesign.value,failure:val("failure"),improve:val("improve")});
+  if(!S.data.failure||!S.data.improve)return alert("Rekodkan kegagalan dan penambahbaikan.");
+  S.score=Math.max(S.score,80);S.mission=Math.max(S.mission,6);save();go("m6")
+}
+function complete6(){
+  if(!val("productName")||!val("pitch")||!val("reflection"))return alert("Lengkapkan nama produk, pitch dan refleksi.");
+  Object.assign(S.data,{productName:val("productName"),pitch:val("pitch"),reflection:val("reflection")});
+  S.score=100;S.mission=6;save();go("passport");alert("🏆 Tahniah! Kamu menamatkan REKA QUEST.");
+}
+function renderPassport(){
+  if(!passportEntries)return;
+  const d=S.data;
+  const rows=[
+    ["Nama Murid",S.studentName],["Kelas/Kumpulan",S.studentClass],
+    ["Masalah",d.problem],["Kriteria",d.criteria],["Idea dipilih",d.chosenIdea?`Idea ${d.chosenIdea}: ${d["idea"+d.chosenIdea]||""}`:""],
+    ["Justifikasi idea",d.ideaReason],["Ciri lakaran",d.sketchNotes],["Bahan",d.cart?.map(x=>x.name).join(", ")],
+    ["Strategi kos",d.buyReason],["Ujian",d.stableSec!=null?`${d.stableSec}s stabil • ${d.loadG}g beban • ${d.redesign} redesign`:""],
+    ["Kegagalan",d.failure],["Penambahbaikan",d.improve],["Produk akhir",d.productName],["Refleksi",d.reflection]
+  ].filter(x=>x[1]);
+  passportEntries.innerHTML=rows.length?rows.map(([a,b])=>`<div class="entry"><b>${a}</b><div class="muted">${escapeHtml(String(b))}</div></div>`).join(""):'<div class="muted">Belum ada bukti pembelajaran. Mulakan Misi 1.</div>';
+}
+function escapeHtml(s){return s.replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+
+
+function renderStructuredMentor(data){
+  const s=data.structured || {};
+  return `<div class="mentor-card">
+    <div class="mentor-block">
+      <div class="label">✅ Kekuatan jawapan</div>
+      <div class="text">${escapeHtml(s.good || "Belum dapat dikenal pasti.")}</div>
+    </div>
+    <div class="mentor-block">
+      <div class="label">🔧 Perkara untuk dibaiki</div>
+      <div class="text">${escapeHtml(s.improve || "Belum dapat dikenal pasti.")}</div>
+    </div>
+    <div class="mentor-block question">
+      <div class="label">💭 Soalan pembimbing</div>
+      <div class="text">${escapeHtml(s.question || "Apakah bukti yang boleh kamu gunakan untuk menyokong keputusan reka bentuk ini?")}</div>
+    </div>
+  </div>`;
+}
+
+function cleanAiText(text){
+  let t=(text||"").trim();
+  // Remove stray markdown-only lines and repeated spaces
+  t=t.replace(/^\s*[*_`#-]{1,3}\s*$/gm,"");
+  t=t.replace(/\n{3,}/g,"\n\n");
+  // Remove accidental dangling single asterisks around punctuation
+  t=t.replace(/(^|\s)\*(?=\s|$)/g,"$1");
+  return t.trim();
+}
+
+function renderMentorReply(text){
+  let t=escapeHtml(cleanAiText(text));
+
+  // Basic markdown: bold
+  t=t.replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>");
+
+  // Convert common mentor labels into clear sections
+  const labels = [
+    "Satu perkara yang baik",
+    "Apa yang sudah baik",
+    "Perkara yang sudah baik",
+    "Perkara yang perlu diperjelas",
+    "Apa yang perlu diperjelas",
+    "Perlu diperjelas",
+    "Soalan seterusnya",
+    "Soalan tindakan",
+    "Cuba fikirkan",
+    "Cadangan"
+  ];
+  for(const label of labels){
+    const re=new RegExp(`(?:<strong>)?${label}(?:<\\/strong>)?\\s*:?`,"gi");
+    t=t.replace(re,`<div class="ai-section"><div class="ai-label">${label}</div>`);
+  }
+
+  // Simple bullets
+  const lines=t.split(/\n/);
+  let out=[], inList=false;
+  for(let line of lines){
+    const m=line.match(/^\s*(?:[-•]|\d+\.)\s+(.*)$/);
+    if(m){
+      if(!inList){out.push("<ul>");inList=true;}
+      out.push(`<li>${m[1]}</li>`);
+    }else{
+      if(inList){out.push("</ul>");inList=false;}
+      if(line.trim()) out.push(`<p>${line}</p>`);
+    }
+  }
+  if(inList) out.push("</ul>");
+
+  let rendered=out.join("");
+  // Close any section boxes that were opened by label replacement.
+  // Since labels are embedded inside <p>, normalize lightly.
+  rendered=rendered.replace(/<p><div class="ai-section">/g,'<div class="ai-section">')
+                   .replace(/<\/div><\/p>/g,'</div>');
+  const opens=(rendered.match(/class="ai-section"/g)||[]).length;
+  const closes=(rendered.match(/<\/div>/g)||[]).length;
+  if(opens>closes) rendered += "</div>".repeat(opens-closes);
+
+  return rendered;
+}
+
+function downloadPassport(){
+  const d=S.data; let t=`REKA QUEST — DESIGN PASSPORT\nNama: ${S.studentName || "-"}\nKelas/Kumpulan: ${S.studentClass || "-"}\n\n`+Object.entries(d).map(([k,v])=>`${k.toUpperCase()}\n${Array.isArray(v)?v.map(x=>x.name||x).join(", "):v}\n`).join("\n");
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([t],{type:"text/plain"}));a.download="REKA_Design_Passport.txt";a.click()
+}
+
+
+async function askMentor(mission, preset){
+  const inputEl=document.getElementById("aiInput"+mission);
+  const log=document.getElementById("aiLog"+mission);
+  const status=document.getElementById("aiStatus"+mission);
+  const question=(preset || inputEl?.value || "").trim();
+  if(!question) return;
+  log.insertAdjacentHTML("beforeend",`<div class="msg user">${escapeHtml(question)}</div>`);
+  if(inputEl) inputEl.value="";
+  status.innerHTML='<span class="ai-thinking">REKA AI sedang berfikir…</span>';
+
+  const context={
+    mission,
+    userNeed: document.getElementById("userNeed")?.value || S.data.userNeed || "",
+    problem: document.getElementById("problem")?.value || S.data.problem || "",
+    criteria: document.getElementById("criteria")?.value || S.data.criteria || "",
+    constraint: document.getElementById("constraint")?.value || S.data.constraint || "",
+    ideaA: document.getElementById("ideaA")?.value || S.data.ideaA || "",
+    ideaB: document.getElementById("ideaB")?.value || S.data.ideaB || "",
+    ideaC: document.getElementById("ideaC")?.value || S.data.ideaC || "",
+    chosenIdea: document.getElementById("chosenIdea")?.value || S.data.chosenIdea || "",
+    ideaReason: document.getElementById("ideaReason")?.value || S.data.ideaReason || "",
+    stableSec: document.getElementById("stableSec")?.value || S.data.stableSec || "",
+    loadG: document.getElementById("loadG")?.value || S.data.loadG || "",
+    redesign: document.getElementById("redesign")?.value || S.data.redesign || "",
+    failure: document.getElementById("failure")?.value || S.data.failure || "",
+    improve: document.getElementById("improve")?.value || S.data.improve || "",
+    sketchNotes: document.getElementById("sketchNotes")?.value || S.data.sketchNotes || "",
+    sketchData: (mission===3 && typeof c!=="undefined") ? c.toDataURL("image/png") : (S.data.sketchData || ""),
+    question
+  };
+
+  try{
+    const res=await fetch("/api/mentor",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(context)});
+    const data=await res.json();
+    if(!res.ok) throw new Error(data.error || data.details || "AI tidak dapat dihubungi.");
+    if(!data.structured) throw new Error("Respons AI tidak lengkap.");
+    const mentorHtml = renderStructuredMentor(data);
+    log.insertAdjacentHTML("beforeend",`<div class="msg ai">${mentorHtml}</div>`);
+    log.scrollTop=log.scrollHeight;
+    status.textContent="";
+  }catch(err){
+    log.insertAdjacentHTML("beforeend",`<div class="msg ai">⚠️ ${escapeHtml(err.message)} Pastikan server berjalan dan GEMINI_API_KEY telah ditetapkan di Render.</div>`);
+    status.textContent="";
+  }
+}
+
+// sketch canvas
+const c=document.getElementById("sketch"),ctx=c.getContext("2d");ctx.lineWidth=3;ctx.lineCap="round";let drawing=false;
+function pos(e){const r=c.getBoundingClientRect(),p=e.touches?e.touches[0]:e;return{x:(p.clientX-r.left)*c.width/r.width,y:(p.clientY-r.top)*c.height/r.height}}
+["mousedown","touchstart"].forEach(ev=>c.addEventListener(ev,e=>{drawing=true;const p=pos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);e.preventDefault()}));
+["mousemove","touchmove"].forEach(ev=>c.addEventListener(ev,e=>{if(!drawing)return;const p=pos(e);ctx.lineTo(p.x,p.y);ctx.stroke();e.preventDefault()}));
+["mouseup","mouseleave","touchend"].forEach(ev=>c.addEventListener(ev,()=>drawing=false));
+function clearCanvas(){ctx.clearRect(0,0,c.width,c.height)}
+
+renderStore();renderCart();refresh();
+if(S.studentName){
+  go("home");
+}else{
+  go("register");
+}
+</script>
+</body>
+</html>
