@@ -5,7 +5,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const app = express();
-app.use(express.json({ limit: "1mb" }));
+app.use(express.json({ limit: "2mb" }));
 app.use(express.static("public"));
 
 if (!process.env.GEMINI_API_KEY) {
@@ -35,7 +35,7 @@ PERATURAN WAJIB:
 FOKUS MISI:
 1 = pengguna, masalah, keperluan, kriteria, kekangan.
 2 = perbezaan idea, fungsi, kestabilan, kos, justifikasi.
-3 = hubungan ciri lakaran dengan fungsi. Jika imej lakaran diberikan, rujuk ciri visual yang benar-benar kelihatan dan padankan dengan catatan murid.
+3 = hubungan ciri lakaran dengan fungsi. Jika imej lakaran diberikan, rujuk hanya ciri visual yang benar-benar kelihatan dan padankan dengan catatan murid.
 4 = trade-off bahan, kos dan fungsi.
 5 = keputusan ujian, punca kegagalan, pemboleh ubah, iterasi.
 6 = bukti, justifikasi dan refleksi.
@@ -51,15 +51,25 @@ const responseSchema = {
   required: ["good", "improve", "question"]
 };
 
+function normalize(v) {
+  return String(v || "")
+    .replace(/\*+/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 app.post("/api/mentor", async (req, res) => {
   try {
     if (!process.env.GEMINI_API_KEY) {
-      return res.status(500).json({ error: "GEMINI_API_KEY belum ditetapkan di Render." });
+      return res.status(500).json({
+        error: "GEMINI_API_KEY belum ditetapkan di Render."
+      });
     }
 
     const c = req.body || {};
+
     const context = `
-MISI: ${c.mission}
+MISI: ${c.mission || "-"}
 
 DATA MURID
 Pengguna: ${c.userNeed || "-"}
@@ -85,20 +95,36 @@ PERMINTAAN MURID
 ${c.question || "Semak jawapan saya."}
 `;
 
-    const contents = [];
-    if (String(c.mission) === "3" && c.sketchData && c.sketchData.startsWith("data:image/")) {
+    let contents;
+
+    if (
+      String(c.mission) === "3" &&
+      c.sketchData &&
+      c.sketchData.startsWith("data:image/")
+    ) {
       const base64 = c.sketchData.split(",")[1];
-      contents.push({
+
+      contents = [{
         role: "user",
         parts: [
-          { text: context + "
-
-Lihat lakaran yang dilampirkan. Fokus pada ciri visual yang benar-benar kelihatan dan jangan mereka-reka ciri yang tidak jelas." },
-          { inlineData: { mimeType: "image/png", data: base64 } }
+          {
+            text:
+              context +
+              "\n\nLihat lakaran yang dilampirkan. Fokus pada ciri visual yang benar-benar kelihatan dan jangan mereka-reka ciri yang tidak jelas."
+          },
+          {
+            inlineData: {
+              mimeType: "image/png",
+              data: base64
+            }
+          }
         ]
-      });
+      }];
     } else {
-      contents.push({ role: "user", parts: [{ text: context }] });
+      contents = [{
+        role: "user",
+        parts: [{ text: context }]
+      }];
     }
 
     const response = await ai.models.generateContent({
@@ -107,23 +133,25 @@ Lihat lakaran yang dilampirkan. Fokus pada ciri visual yang benar-benar kelihata
       config: {
         systemInstruction,
         temperature: 0.15,
-        maxOutputTokens: 260,
+        maxOutputTokens: 300,
         responseMimeType: "application/json",
         responseSchema
       }
     });
 
     const raw = response.text?.trim();
-    if (!raw) throw new Error("Gemini tidak memulangkan respons.");
+
+    if (!raw) {
+      throw new Error("Gemini tidak memulangkan respons.");
+    }
 
     let structured;
     try {
       structured = JSON.parse(raw);
-    } catch {
+    } catch (e) {
+      console.error("RAW GEMINI RESPONSE:", raw);
       throw new Error("Format respons Gemini tidak sah.");
     }
-
-    const normalize = (v) => String(v || "").replace(/\*+/g, "").replace(/\s+/g, " ").trim();
 
     structured = {
       good: normalize(structured.good),
@@ -132,13 +160,16 @@ Lihat lakaran yang dilampirkan. Fokus pada ciri visual yang benar-benar kelihata
     };
 
     if (!structured.good || !structured.improve || !structured.question) {
+      console.error("INCOMPLETE STRUCTURED RESPONSE:", structured);
       throw new Error("Respons Gemini tidak lengkap.");
     }
 
-    res.json({ structured });
+    return res.json({ structured });
+
   } catch (error) {
     console.error("Mentor error:", error);
-    res.status(500).json({
+
+    return res.status(500).json({
       error: "REKA AI Mentor tidak dapat memberi maklum balas sekarang.",
       details: error?.message || "Ralat tidak diketahui."
     });
@@ -146,6 +177,7 @@ Lihat lakaran yang dilampirkan. Fokus pada ciri visual yang benar-benar kelihata
 });
 
 const port = process.env.PORT || 3000;
+
 app.listen(port, () => {
   console.log(`🚀 REKA QUEST AI berjalan di http://localhost:${port}`);
   console.log(`🤖 Gemini model: ${MODEL}`);
